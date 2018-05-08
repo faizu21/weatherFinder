@@ -6,46 +6,29 @@ $error = "";
 if(array_key_exists('city', $_GET))
 {
 
- $city = str_replace(' ', '', $_GET['city']);
+     $urlContents =  file_get_contents("http://api.openweathermap.org/data/2.5/weather?q=".urlencode($_GET['city'])."&appid=3284be7d8b5e1dcc4c375197fa571b68");
 
- $file_headers = @get_headers("https://www.weather-forecast.com/locations/".$city."/forecasts/latest");
+     $weatherArray = json_decode($urlContents, true);
 
- if(!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
+     
 
-     $error = "This city could not be found.";
+     if($weatherArray['cod'] == 200)
+     {
+         
+    $weather = "The weather in ".$_GET['city']." is currently '".$weatherArray['weather'][0]['description']."'.";
 
- }
- else{
+    $tempInCelcius = intval($weatherArray['main']['temp']-273);
 
-  $forecastpage = file_get_contents("https://www.weather-forecast.com/locations/".$city."/forecasts/latest");
+    $weather  .= "The temperature is  ".$tempInCelcius."&deg;C and the wind speed is ".  $weatherArray['wind']['speed']."m/s.";
 
-  $pageArray = explode('Weather Today </h2>(1&ndash;3 days)</span><p class="b-forecast__table-description-content"><span class="phrase">', $forecastpage);
-
-  if(sizeof($pageArray) > 1)
-  {
-
-  $secondPageArray = explode('</span></p></td>', $pageArray[1]);
-
- if(sizeof($secondPageArray) > 1)
- {
-
-     $weather =  $secondPageArray[0];
- }else{
-
-  $error = "This city could not be found.";
- }
-
- }else{
-
-  $error = "This city could not be found.";
-
- }
-
-}
-
+   }else{
+                       
+                $error = "Could not find city-please try again.";
+      }
   
 
 }
+
 
 
 ?>
@@ -157,3 +140,5 @@ if(array_key_exists('city', $_GET))
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </body>
 </html>
+
+      
